@@ -17,40 +17,62 @@ title = tk.Label(
 )
 
 # Name question
+name_var = tk.StringVar(root)
 name_label = tk.Label(root, text="What is your name?")
-name_input = tk.Entry(root)
+name_input = tk.Entry(root, textvariable=name_var)
 
 # Eat question
+eater_var = tk.BooleanVar()
 eater_input = tk.Checkbutton(
     root,
+    variable=eater_var,
     text="Check this box if you eat bananas"
 )
 
 # Number question
+num_var = tk.IntVar(value=3)
 num_label = tk.Label(
     root,
     text="How many bananas do you eat per day?"
 )
-num_input = tk.Spinbox(root, from_=0, to=1000, increment=1)
+num_input = tk.Spinbox(
+    root, 
+    textvariable=num_var,
+    from_=0, 
+    to=1000, 
+    increment=1
+)
 
 # Color question
+color_var = tk.StringVar(value='Any')
 color_label = tk.Label(
     root,
     text="What is the best color for a banana?"
 )
-color_input = tk.Listbox(root, height=1)
 color_choices = (
     "Any", "Green",  "Green-Yellow",
     "Yellow", "Brown Spotted", "Black"
 )
-for choice in color_choices:
-    color_input.insert(tk.END, choice)
+color_input = tk.OptionMenu(
+    root, color_var, *color_choices
+)
 
 # Plantain question
+plantain_var = tk.BooleanVar()
 plantain_label = tk.Label(root, text="Do you eat plantains?")
 plantain_frame = tk.Frame(root)
-plantain_yes_input = tk.Radiobutton(plantain_frame, text="Yes")
-plantain_no_input = tk.Radiobutton(plantain_frame, text="Eww, no!")
+plantain_yes_input = tk.Radiobutton(
+    plantain_frame, 
+    text="Yes",
+    value=True,
+    variable=plantain_var
+)
+plantain_no_input = tk.Radiobutton(
+    plantain_frame, 
+    text="Eww, no!",
+    value=False,
+    variable=plantain_var
+)
 
 # Haiku question
 banana_haiku_label = tk.Label(
@@ -59,27 +81,39 @@ banana_haiku_label = tk.Label(
 )
 banana_haiku_input = tk.Text(root, height=3)
 
+output_var = tk.StringVar(value='')
+output_line = tk.Label(
+    root, 
+    textvariable=output_var,
+    anchor="w", 
+    justify="left"
+)
+
 # Handle submission
 submit_button = tk.Button(root, text="Submit Survey")
 def on_submit():
-    name = name_input.get()
-    number = num_input.get()
-    selected_index = color_input.curselection()
-    if selected_index:
-        color = color_input.get(selected_index)
-    else:
-        color = ""
+    name = name_var.get()
+    try:
+        number = num_var.get()
+    except tk.TclError:
+        number = 10000
+    color = color_var.get()
+    banana_eater = eater_var.get()
+    plantain_eater = plantain_var.get()
     haiku = banana_haiku_input.get('1.0', tk.END)
-
-    message = (
-        f"Thanks for taking the survey, {name}.\n"
-        f"Enjoy your {number} {color} bananas!"
-    )
-    output_line.configure(text=message)
-    print(haiku)
+    message = f'Thanks for taking the survey, {name}.\n'
+    if not banana_eater:
+        message += "Sorry you don't like bananas!\n"
+    else:
+        message += f'Enjoy your {number} {color} bananas!\n'
+    if plantain_eater:
+        message += 'Enjoy your plantains!'
+    else:
+        message += 'May you successfully avoid plantains!'
+    if haiku.strip():
+        message += f'\n\nYour Haiku:\n{haiku}'
+    output_var.set(message)
 submit_button.configure(command=on_submit)
-
-output_line = tk.Label(root, text="", anchor="w", justify="left")
 
 # Place everything into the grid
 title.grid(columnspan=2)

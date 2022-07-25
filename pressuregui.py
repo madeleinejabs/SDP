@@ -21,4 +21,3 @@ plt.ylabel('Pressure (psi)')
 plt.scatter(time, pressure)
 plt.scatter(peak_times, peak_pressures, marker='X', s=100)
 plt.show()
-
