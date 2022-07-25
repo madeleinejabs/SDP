@@ -1,0 +1,14 @@
+What to download (RS485 Sensors)
+
+
+"Digital Transducer Application x.x.x.zip": Download this to install the free software that allows you to  
+	view data from your RS485 sensor.  This software also supports PX409-USBH, TJ-USB, IR-USB, RH-USB, 
+	UTC-USB, and PX409-USB (legacy product).
+
+"Omega Products dotNET API x.x.x.zip": Download this if you will be writing your own application software for 
+	.NET, and want to use Omega's free .NET API.
+
+"Omega RS485 Transducer Command Reference 2015-11-24.pdf": Download this if you will be writing a software
+ 	application to directly interface with the Omega USBH device through the serial port. This is a reference 
+	document that details the USBH commands and port settings.
+
