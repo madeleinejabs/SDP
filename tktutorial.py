@@ -3,7 +3,7 @@ import tkinter as tk
 # Window settings
 root = tk.Tk() # root window
 root.title("Banana interest survey") # Set title
-root.geometry('650x480+300+399') # Set root window size
+root.geometry('650x480+300+300') # Set root window size
 root.resizable(False, False)
 root.columnconfigure(1, weight=1)
 root.rowconfigure(99, weight=2)
