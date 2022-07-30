@@ -49,9 +49,13 @@ def upload_file():
 
     if len(time) > 0 and len(pressure) > 0:
         # Analyze data
-        peaks = sps.find_peaks(pressure)[0]
+        peaks = sps.find_peaks(pressure, height=1)[0]
         peak_times = time[peaks]
         peak_pressures = pressure[peaks]
+
+        troughs = sps.find_peaks(-pressure, height=(None, -1))[0]
+        trough_times = time[troughs]
+        trough_pressures = pressure[troughs]
 
         # Open new window
         window = tk.Toplevel(root)
@@ -59,13 +63,16 @@ def upload_file():
         window.state('zoomed')
 
         # Plot data and peaks
-        figure = Figure(figsize=(13, 7), dpi=100)
+        figure = Figure(figsize=(screen_width // 125, screen_height // 125), dpi=100)
         canvas_tkagg = FigureCanvasTkAgg(figure, master=window)
         axes = figure.add_subplot(1, 1, 1)
-        axes.set_xlabel('Time (milliseconds)')
+        axes.set_xlabel('Time (seconds)')
         axes.set_ylabel('Pressure (psi)')
-        axes.scatter(time, pressure)
-        canvas_tkagg.get_tk_widget().pack()
+        axes.scatter(time, pressure, label='Raw Data')
+        axes.scatter(peak_times, peak_pressures, marker='X', s=100, label='Peaks')
+        axes.scatter(trough_times, trough_pressures, marker='P', s=100, label='Troughs')
+        axes.legend()
+        canvas_tkagg.get_tk_widget().place(anchor='n', relx=0.5)
 
 # GUI widgets
 upload_button = tk.Button(
