@@ -23,23 +23,20 @@ root_height = screen_height // 3
 root_x = screen_width // 2 - root_width // 2
 root_y = screen_height // 2 - root_height // 2
 root.geometry(f'{root_width}x{root_height}+{root_x}+{root_y}')
-    
-    
-def datetime_string_to_float(string):
-    datetime_object = datetime.strptime(string, r'%Y-%m-%d %H:%M:%S.%f %p')
-    return datetime_object.timestamp()
 
 def upload_file():
     # Ask user which file they want to analyze
     path = tk.filedialog.askopenfilename(filetypes=(('Excel Files', '*.xlsx'), ('CSV Files', '*.csv')))
     extension = os.path.splitext(path)[-1]
 
+    # Extract data from file
     try:
         if extension == '.xlsx':
-            data = pandas.read_excel(path, header=9)
+            data = pandas.read_excel(path, header=10)
+            time = np.array([i.timestamp() for i in data.Time])
         elif extension == '.csv':
             data = pandas.read_csv(path, header=9)
-        time = np.array([datetime.strptime(string, r'%Y-%m-%d %H:%M:%S.%f %p').timestamp() for string in data.Time])
+            time = np.array([datetime.strptime(i, r'%Y-%m-%d %H:%M:%S.%f %p').timestamp() for i in data.Time])   
         time = time - time[0]
         pressure = np.array(data.Value)
         error_message.pack_forget()
@@ -49,18 +46,14 @@ def upload_file():
 
     if len(time) > 0 and len(pressure) > 0:
         # Analyze data
-        peaks = sps.find_peaks(pressure, height=1)[0]
-        peak_times = time[peaks]
-        peak_pressures = pressure[peaks]
-
-        troughs = sps.find_peaks(-pressure, height=(None, -1))[0]
-        trough_times = time[troughs]
-        trough_pressures = pressure[troughs]
+        max_pressure = max(pressure).round(3)
+        max_pressure_times = time[np.where(pressure == max(pressure))]
 
         # Open new window
         window = tk.Toplevel(root)
         window.title('Results')
         window.state('zoomed')
+        window.resizable(False, False)
 
         # Plot data and peaks
         figure = Figure(figsize=(screen_width // 125, screen_height // 125), dpi=100)
@@ -69,10 +62,15 @@ def upload_file():
         axes.set_xlabel('Time (seconds)')
         axes.set_ylabel('Pressure (psi)')
         axes.scatter(time, pressure, label='Raw Data')
-        axes.scatter(peak_times, peak_pressures, marker='X', s=100, label='Peaks')
-        axes.scatter(trough_times, trough_pressures, marker='P', s=100, label='Troughs')
+        axes.scatter(max_pressure_times, max_pressure, label='Max Pressure', s=50)
         axes.legend()
-        canvas_tkagg.get_tk_widget().place(anchor='n', relx=0.5)
+        canvas_tkagg.get_tk_widget().place(anchor='w', rely=0.5)
+
+        # Communicate analyzed data
+        results = tk.Frame(window)
+        overall_max=tk.Label(results, text=f'Overall maximum pressure: {max_pressure}')
+        results.place(relx=0.8, rely=0.5)
+        overall_max.pack()
 
 # GUI widgets
 upload_button = tk.Button(
